@@ -1,24 +1,20 @@
+#ifndef LINKEDLIST_HEADER
+#define LINKEDLIST_HEADER
 
-#if !defined(_LIST_H)
-#define _LIST_H
+typedef struct node {
+  int data;
+  struct node * next;
+} Node;
 
-typedef struct _listnode {
-	void *data;
-	unsigned long sz;
+typedef struct list {
+  Node * head; 
+} List;
 
-	struct _listnode *next;
-} LISTNODE;
-
-typedef struct _list {
-	LISTNODE *head;
-	LISTNODE *tail;
-} LIST;
-
-LISTNODE *AddNode(LIST *, void *, unsigned long);
-void DeleteNode(LIST *, LISTNODE *);
-LISTNODE *FindNodeByRef(LIST *, void *);
-LISTNODE *FindNodeByValue(LIST *, void *, unsigned long);
-void FreeNodes(LIST *, int);
-void FreeList(LIST *);
+List * makelist();
+void add(int data, List * list);
+void delete(int data, List * list);
+void display(List * list);
+void reverse(List * list);
+void destroy(List * list);
 
 #endif

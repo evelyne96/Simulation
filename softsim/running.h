@@ -21,6 +21,8 @@ void rebuild_pinning_grid(void);
 void calculate_external_forces_on_particles(void);
 void calculate_pairwise_forces(void);
 void calculate_pairwise_forces_simple(void);
+void calculate_forces_between(int i, int j);
+void calculate_pairwise_forces_Verlet_lookup_cell();
 void check_Verlet_rebuild_condition_and_set_flag(void);
 void rebuild_Verlet_list(void);
 void move_particles(void);
@@ -33,6 +35,8 @@ void write_cmovie_frame(void);
 
 void adjust_pinningsite_directions(void);
 void rotate_pinningsite_directions(void);
+
+void go_through_linked_Verlet_list(int one, int two, int same);
 
 //functions for testing the program
 void test_program_by_coloring(void);

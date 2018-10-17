@@ -1,6 +1,7 @@
 CC=gcc
 MAINDEPS = initializer.h running.h 
-INITDEPS = globaldata.h initializer.h
+INITDEPS = globaldata.h initializer.h list.h
+GLOBALDEPS = list.h
 OBJS = main.o initializer.o running.o globaldata.o list.o
 LIB = -lm
 # -Wall
@@ -17,7 +18,7 @@ initializer.o : initializer.c $(INITDEPS)
 running.o : running.c $(INITDEPS)
 	$(CC) running.c -c 
 
-globaldata.o : globaldata.c 
+globaldata.o : globaldata.c $(GLOBALDEPS)
 	$(CC) globaldata.c -c 
 
 list.o : list.c

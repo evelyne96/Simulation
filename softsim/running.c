@@ -5,12 +5,12 @@
 //  Created by András Libál on 7/19/18.
 //  Copyright © 2018 András Libál. All rights reserved.
 //
-
 #include "running.h"
 #include "globaldata.h"
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include "list.h"
 
 #define PI 3.1415926535
 
@@ -54,6 +54,48 @@ for(global.time=0;global.time<global.total_time;global.time++)
     // //movie write time
     // if (global.time % global.movie_time == 0)
     //     write_cmovie_frame();
+        
+    }
+}
+
+void run_simulation_Verlet_lookup_cell()
+{
+    // global.total_time = 1000000;
+// global.echo_time = 10000;
+// global.movie_time = 1000;
+
+rebuild_Verlet_cell();//build for the first time
+//rebuild_pinning_grid(); //build for the first time
+
+for(global.time=0;global.time<global.total_time;global.time++)
+    {
+    //adjust_pinningsite_directions();
+    //rotate_pinningsite_directions();
+    //calculate_external_forces_on_pinningsites();
+    //move_pinningsites();
+    //rebuild_pinning_grid();
+    
+    calculate_external_forces_on_particles();
+    calculate_pairwise_forces_Verlet_lookup_cell();
+    move_particles();
+    
+    check_Verlet_rebuild_condition_and_set_flag();
+    
+    //one particle moved enough to rebuild the Verlet list
+    if (global.flag_to_rebuild_Verlet==1)
+        rebuild_Verlet_cell();
+    
+    // In order to test it don't write to file so it doesn't interfere with the solution
+    //echo time
+    // if (global.time % global.echo_time == 0)
+    //     {
+    //     printf("%d / %d\n",global.time,global.total_time);
+    //     fflush(stdout);
+    //     }
+    
+    //movie write time
+    if (global.time % global.movie_time == 0)
+        write_cmovie_frame();
         
     }
 }
@@ -298,6 +340,87 @@ for(i=0;i<global.N_particles;i++)
 
 }
 
+void calculate_pairwise_forces_Verlet_lookup_cell()
+{
+int i,j;
+
+for(i=0;i<global.Verlet_cell_list_size;i++)
+{
+    int up = i - global.Nx_Verlet_cell_list;
+    int up_right = up + 1;
+    int right = i + 1;
+    int down_right = i + global.Nx_Verlet_cell_list + 1;
+    
+    go_through_linked_Verlet_list(i, i, 1);
+    if (up > 0)                                  go_through_linked_Verlet_list(i, up, 0);
+    if (up_right > global.Nx_Verlet_cell_list)   go_through_linked_Verlet_list(i, up_right, 0);
+    if (right < global.Ny_Verlet_cell_list)      go_through_linked_Verlet_list(i, right, 0);
+    if (down_right < global.Nx_Verlet_cell_list) go_through_linked_Verlet_list(i, down_right, 0);
+}
+}
+
+void go_through_linked_Verlet_list(int one, int two, int same)
+{
+  List *current = global.Verlet_cell_list[one];
+  List *other = global.Verlet_cell_list[two];
+  if(current->head == NULL || other->head == NULL)  return;
+
+  Node *start_node = current->head;
+  Node *start_other = other->head;
+  Node *other_start_node = start_other;
+  
+  for(; start_node != NULL; start_node = start_node->next) 
+  {
+      for(; other_start_node != NULL; other_start_node = other_start_node->next)
+      {
+         int i = start_node->data;
+         int j = other_start_node->data;
+         printf("i:%d,j:%d/n",i,j);
+         if (i == j) continue;
+         calculate_forces_between(i, j);
+      }
+      if (same)
+      {
+           start_other = start_other->next;
+      }
+      other_start_node = start_other;
+  }
+}
+
+void calculate_forces_between(int i, int j)
+{
+    double r,r2,f;
+    double dx,dy;
+        //perform the pairwise force calculation
+    distance_squared_folded_PBC(global.particle_x[i],global.particle_y[i],
+            global.particle_x[j],global.particle_y[j],&r2,&dx,&dy);
+    
+    //non-tabulated version
+    //try to not divide just multiply division is costly
+    r = sqrt(r2);
+    if (r<0.2)
+        {
+        printf("WARNING:PARTICLES TOO CLOSE. LOWER FORCE USED\n");
+        f = 100.0;
+        }
+    else
+        {
+        f = 1/r2 * exp(-r * global.partile_particle_screening_wavevector);
+        //if (r<1.0) printf("r=%lf f=%lf\n",r,f);
+        }
+        
+    //division and multiplication for projection to the x,y axes
+    
+    f = f/r;
+    //if (r<1.0) printf("%f/r=lf fx=%lf fy=%lf\n\n",f,f*dx,f*dy);
+    
+    global.particle_fx[i] -= f*dx;
+    global.particle_fy[i] -= f*dy;
+    
+    global.particle_fx[j] += f*dx;
+    global.particle_fy[j] += f*dy;
+}
+
 
 void check_Verlet_rebuild_condition_and_set_flag()
 {
@@ -519,7 +642,7 @@ float floatholder;
 int intholder;
 
 //implement the color testing
-test_program_by_coloring();
+// test_program_by_coloring();
 
 //legacy cmovie format for del-plot
 
@@ -597,17 +720,55 @@ for(i=0;i<global.Nx_pinningsite_grid;i++)
 
 }
 
+void rebuild_Verlet_cell() 
+{
+
+    if (global.Verlet_cell_list==NULL)
+    {
+        //build the Verlet cell grid for the first time;
+        global.Nx_Verlet_cell_list = (int) (global.SX/global.Verlet_cutoff_distance) + 1;
+        global.Ny_Verlet_cell_list = (int) (global.SY/global.Verlet_cutoff_distance) + 1;
+     
+        printf("Verlet cell list grid is %d x %d\n",global.Nx_Verlet_cell_list,global.Ny_Verlet_cell_list);
+        
+        //how many small grid cells are
+        global.Verlet_cell_list_size = global.Nx_Verlet_cell_list * global.Ny_Verlet_cell_list; 
+
+        //~how many particles are in a cell
+        global.Verlet_cell_grid_capacity = global.N_particles * (global.Verlet_cell_list_size) / (global.SX * global.SY); 
+        global.Verlet_cell_list = malloc(global.Verlet_cell_list_size * sizeof(List));
+
+    }  
+
+    for(int i=0;i<global.Verlet_cell_list_size;i++)
+    {
+        destroy(global.Verlet_cell_list[i]);
+        global.Verlet_cell_list[i] = makelist();
+    }
+
+    for(int i=0;i<global.N_particles;i++)
+    {
+        // add(particle, torightcell)
+        int gridx = (int)(global.particle_x[i]/global.Nx_Verlet_cell_list);
+        int gridy = (int)(global.particle_y[i]/global.Ny_Verlet_cell_list);
+        int pos = (gridx * global.Ny_Verlet_cell_list) + gridy;
+        add(i, global.Verlet_cell_list[pos]);
+    }
+    
+}
+
+//TESTS FOR COMPARISION
 void run_test_verlet_vs_time()
 {
     FILE *testf;
-    testf = fopen("test/simple_vs_time.csv","wt");
+    testf = fopen("test/verletcell_vs_time.csv","wt");
     global.total_time = 500;
 
     for(int i=0;i<20;i++)
     {
         printf("%d\n",i);
         clock_t before = clock();
-        run_simulation_simple();
+        run_simulation_Verlet_lookup_cell();
         clock_t difference = clock() - before;
         int msec = difference * 1000 / CLOCKS_PER_SEC;
         fprintf(testf,"%d,%d\n",global.total_time,msec);
@@ -615,33 +776,4 @@ void run_test_verlet_vs_time()
     }
     
     fclose(testf);
-}
-
-void rebuild_Verlet_cell() 
-{
-
- if (global.Verlet_cell_list==NULL)
- {
-    //build the Verlet cell grid for the first time;
-    global.Nx_Verlet_cell_list = (int) (global.SX/global.Verlet_cutoff_distance) + 1;
-    global.Ny_Verlet_cell_list = (int) (global.SY/global.Verlet_cutoff_distance) + 1;
-    printf("Verlet cell list grid is %d x %d\n",global.Nx_Verlet_cell_list,global.Ny_Verlet_cell_list);
-    
-    //initialize the grid
-
-    //how many small grid cells are
-    global.Verlet_cell_list_size = global.Nx_Verlet_cell_list * global.Ny_Verlet_cell_list; 
-
-    //~how many particles are in a cell
-    global.Verlet_cell_grid_capacity = global.N_particles * (global.Verlet_cell_list_size) / (global.SX * global.SY); 
-    global.Verlet_cell_list = (int **) malloc(global.Verlet_cell_list_size * sizeof(int *));
-    for(int i=0;i<global.Verlet_cell_list_size;i++)
-        global.Verlet_cell_list[i] = (int *) malloc(global.Verlet_cell_grid_capacity * sizeof(int));
- }  
-
-    //always do this - zero the values
-    for(int i=0;i<global.Verlet_cell_list_size;i++)
-        for(int j=0;j<global.Verlet_cell_grid_capacity;j++)
-            global.Verlet_cell_list[i][j] = -1;
-    
 }

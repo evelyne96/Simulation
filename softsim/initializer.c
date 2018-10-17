@@ -472,7 +472,7 @@ fclose(test);
 
 void init_files()
 {
-global.moviefile = fopen("test/test.mvi","wb");
+global.moviefile = fopen("test/test_cell.mvi","wb");
 if (global.moviefile == NULL)
     {
     printf("Could not create/open movie file\n");

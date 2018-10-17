@@ -10,6 +10,7 @@
 #define globaldata_h
 
 #include <stdio.h>
+#include "list.h"
 
 struct global_struct
     {
@@ -74,7 +75,7 @@ struct global_struct
     int time;
     
     //verlet cell list
-    int **Verlet_cell_list;
+    List **Verlet_cell_list;
     int Nx_Verlet_cell_list;
     int Ny_Verlet_cell_list;
     int Verlet_cell_list_size;
