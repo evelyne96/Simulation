@@ -46,5 +46,6 @@ void run_test_verlet_vs_time(void);
 
 //verlet cell
 void rebuild_Verlet_cell(void);
+void rebuild_Verlet_list_with_cell(void);
 
 #endif /* running_h */

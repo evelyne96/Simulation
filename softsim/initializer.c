@@ -231,7 +231,7 @@ printf("Triangular lattice\nRows = %d\nColumns = %d\nLattice constant = %.2lf\n"
 
 void init_particles()
 {
-global.N_particles = 400;
+global.N_particles = 1000;
 
 
 global.particle_x = (double *)malloc(global.N_particles*sizeof(double));

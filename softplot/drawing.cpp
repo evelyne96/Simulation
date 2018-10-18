@@ -176,26 +176,30 @@ glFlush();
             {
             color  = global.objects[frame][i].color;
             //default: black
-            
-            
             if (color==2) glColor3f(1.0, 0.0, 0.0);
                 else if (color==3) glColor3f(0.0, 0.0, 1.0);
                     else glColor3f(0.7, 0.7, 0.7);
             
             // switch (color)
             //     {
+            //     case 0: {glColor3f(0.0, 1.0, 0.0);break;} 
+            //     case 1: {glColor3f(1.0, 0.0, 0.0);break;} 
             //     case 2: {glColor3f(0.0, 0.0, 0.0);break;} //particles
+            //     case 3: {glColor3f(0.0, 0.0, 1.0); break;}
             //     case 4: {glColor3f(0.25, 0.25, 0.588);break;} //0-in
             //     case 5: {glColor3f(0.322, 0.616, 0.718);break;} //1in
             //     case 6: {glColor3f(0.49, 0.722, 0.455);break;}   //2in
             //     case 7: {glColor3f(0.89, 0.612, 0.216);break;}   //3in
             //     case 8: {glColor3f(0.85, 0.129, 0.125);break;}   //4in
+            //     case 9: {glColor3f(1.0, 0.129, 0.125);break;}   //4in
+            //     case 10: {glColor3f(0.85, 1.0, 0.125);break;}   //4in
+            //     case 11: {glColor3f(0.85, 0.129, 1.0);break;}   //4in
                 
             
             //     default: {glColor3f(1.0, 1.0, 1.0);break;} //should be only gs
             //     }
             
-            
+        
             //remap to OpenGl coord
         
             //main window is an 1280x800
@@ -204,8 +208,8 @@ glFlush();
         
             transform_to_opengl(&x,&y);
         
-            if (color==2) DrawCircle(x, y, global.radius_vertex, 36,1);
-            else DrawCircle(x, y, global.radius_vertex, 36,1);
+            if (color==2) DrawCircle(x, y, global.radius_vertex + 0.01, 36,1);  
+            else DrawCircle(x, y, global.radius_vertex + 0.01, 36,1);
         
             /*
             if ((color==2)||(color==3))
