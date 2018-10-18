@@ -62,7 +62,7 @@ void run_simulation_Verlet_lookup_cell()
 {
     // global.total_time = 1000000;
 // global.echo_time = 10000;
-// global.movie_time = 1000;
+global.movie_time = 1000;
 
 rebuild_Verlet_cell();//build for the first time
 //rebuild_pinning_grid(); //build for the first time
@@ -114,7 +114,6 @@ for(global.time=0;global.time<global.total_time;global.time++)
     calculate_external_forces_on_particles();
     calculate_pairwise_forces_simple();
     move_particles();
-        
     }
 }
 
@@ -275,7 +274,7 @@ for(ii=0;ii<global.N_Verlet;ii++)
     r = sqrt(r2);
     if (r<0.2)
         {
-        printf("WARNING:PARTICLES TOO CLOSE. LOWER FORCE USED\n");
+        printf("WARNING:PARTICLES TOO CLOSE. LOWER FORCE USED %.f %.f \n", r, r2);
         f = 100.0;
         }
     else
@@ -346,16 +345,27 @@ int i,j;
 
 for(i=0;i<global.Verlet_cell_list_size;i++)
 {
-    int up = i - global.Nx_Verlet_cell_list;
-    int up_right = up + 1;
+    int up = i - global.Ny_Verlet_cell_list;
     int right = i + 1;
-    int down_right = i + global.Nx_Verlet_cell_list + 1;
-    
+    if (up < 0) up += global.Verlet_cell_list_size;
+    if (right == global.Verlet_cell_list_size) right = 0;
+    int up_right = up + 1;
+    int down_right = 0;
+    if ((i+1) % global.Ny_Verlet_cell_list == 0) {
+        up_right -= global.Ny_Verlet_cell_list;
+        down_right = i + 1;
+    }
+
+    if (i >= (global.Verlet_cell_list_size - global.Ny_Verlet_cell_list)) {
+        down_right = i - (global.Nx_Verlet_cell_list - 1) * global.Ny_Verlet_cell_list + 1;
+        if (i == (global.Verlet_cell_list_size - 1)) down_right = 0;
+    }
+
     go_through_linked_Verlet_list(i, i, 1);
-    if (up > 0)                                  go_through_linked_Verlet_list(i, up, 0);
-    if (up_right > global.Nx_Verlet_cell_list)   go_through_linked_Verlet_list(i, up_right, 0);
-    if (right < global.Ny_Verlet_cell_list)      go_through_linked_Verlet_list(i, right, 0);
-    if (down_right < global.Nx_Verlet_cell_list) go_through_linked_Verlet_list(i, down_right, 0);
+    go_through_linked_Verlet_list(i, up_right, 0);
+    go_through_linked_Verlet_list(i, right, 0);
+    go_through_linked_Verlet_list(i, up, 0);
+    go_through_linked_Verlet_list(i, down_right, 0);
 }
 }
 
@@ -375,7 +385,7 @@ void go_through_linked_Verlet_list(int one, int two, int same)
       {
          int i = start_node->data;
          int j = other_start_node->data;
-         printf("i:%d,j:%d/n",i,j);
+        //  printf("i:%d,j:%d\n",i,j);
          if (i == j) continue;
          calculate_forces_between(i, j);
       }
@@ -400,7 +410,7 @@ void calculate_forces_between(int i, int j)
     r = sqrt(r2);
     if (r<0.2)
         {
-        printf("WARNING:PARTICLES TOO CLOSE. LOWER FORCE USED\n");
+        printf("WARNING:PARTICLES TOO CLOSE. LOWER FORCE USED %.f %.f\n", r2, r);
         f = 100.0;
         }
     else
@@ -729,7 +739,7 @@ void rebuild_Verlet_cell()
         global.Nx_Verlet_cell_list = (int) (global.SX/global.Verlet_cutoff_distance) + 1;
         global.Ny_Verlet_cell_list = (int) (global.SY/global.Verlet_cutoff_distance) + 1;
      
-        printf("Verlet cell list grid is %d x %d\n",global.Nx_Verlet_cell_list,global.Ny_Verlet_cell_list);
+       // printf("Verlet cell list grid is %d x %d\n",global.Nx_Verlet_cell_list,global.Ny_Verlet_cell_list);
         
         //how many small grid cells are
         global.Verlet_cell_list_size = global.Nx_Verlet_cell_list * global.Ny_Verlet_cell_list; 
@@ -754,6 +764,13 @@ void rebuild_Verlet_cell()
         int pos = (gridx * global.Ny_Verlet_cell_list) + gridy;
         add(i, global.Verlet_cell_list[pos]);
     }
+
+    global.flag_to_rebuild_Verlet = 0;
+    for(int i=0;i<global.N_particles;i++)
+    {
+        global.particle_dx_so_far[i] = 0.0;
+        global.particle_dy_so_far[i] = 0.0;
+    }
     
 }
 
@@ -764,7 +781,7 @@ void run_test_verlet_vs_time()
     testf = fopen("test/verletcell_vs_time.csv","wt");
     global.total_time = 500;
 
-    for(int i=0;i<20;i++)
+    for(int i=0;i<15;i++)
     {
         printf("%d\n",i);
         clock_t before = clock();
