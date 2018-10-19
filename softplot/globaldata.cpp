@@ -38,8 +38,8 @@ void initialize_global_data()
     global.N_frames = 0;
     global.current_frame = 0;
     
-    global.trajectories_on = 0;
-    global.trace_length = 10;
+    global.trajectories_on = 1;
+    global.trace_length = 4;
 }
 
 //try to open the movie file, exit if not found with an error message

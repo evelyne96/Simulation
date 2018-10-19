@@ -734,7 +734,7 @@ for(i=0;i<global.N_particles;i++)
      int gridx = ((int)floor(global.particle_x[i]) / global.Nx_Verlet_cell_list);
      int gridy = ((int)floor(global.particle_y[i]) / global.Ny_Verlet_cell_list);
      int pos = (gridx * global.Ny_Verlet_cell_list) + gridy;
-    // global.particle_color[i] = (gridy+gridx) %4;
+    //  global.particle_color[i] = (gridy+gridx) %4;
     
     global.particle_fx[i] = 0.0;
     global.particle_fy[i] = 0.0;
@@ -844,8 +844,9 @@ void rebuild_Verlet_cell()
     if (global.Verlet_cell_list==NULL)
     {
         //build the Verlet cell grid for the first time;
-        global.Nx_Verlet_cell_list = (int) floor(global.SX/global.Verlet_cutoff_distance) + 1;
-        global.Ny_Verlet_cell_list = (int) floor(global.SY/global.Verlet_cutoff_distance) + 1;
+        global.Nx_Verlet_cell_list = (int) floor(global.SX/global.Verlet_cutoff_distance) ;
+        global.Ny_Verlet_cell_list = (int) floor(global.SY/global.Verlet_cutoff_distance) ;
+        printf("With floor Nx:%d,Ny:%d\n",global.Nx_Verlet_cell_list, global.Ny_Verlet_cell_list);
         global.Verlet_cell_list_size = global.Nx_Verlet_cell_list * global.Ny_Verlet_cell_list; 
         global.Verlet_cell_list = malloc(global.Verlet_cell_list_size * sizeof(List));
     }  

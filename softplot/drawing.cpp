@@ -234,8 +234,8 @@ glFlush();
         switch (color)
             {
             case 2: {glColor3f(1.0, 0.0, 0.0);break;}
-            case 3: {glColor3f(0.0, 0.5, 0.0);break;}
-            case 4: {glColor3f(0.0, 0.0, 1.0);break;}
+            case 3: {glColor3f(0.0, 0.0, 1.0);break;}
+            case 4: {glColor3f(0.0, 0.5, 0.0);break;}
             //else: {glColor3f(0.0, 0.0, 0.0);break;}
             }
     
