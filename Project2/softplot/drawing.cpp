@@ -1,10 +1,7 @@
-//
 //  drawing.c
 //  softplot
-//
-//  Created by András Libál on 8/7/18.
-//  Copyright © 2018 András Libál. All rights reserved.
-//
+//  Simulation Methods course, 2018
+//  First Assignment: Molecular Dynamics (Brownian Dynamics) Simulation
 
 #include "drawing.h"
 #include "globaldata.h"
@@ -12,17 +9,9 @@
 #include <math.h>
 #include <unistd.h>
 
-#ifdef __APPLE__
-#  include <OpenGL/gl.h>
-#  include <OpenGL/glu.h>
-#  include <GLUT/glut.h>
-#else
-#  include <GL/gl.h>
-#  include <GL/glu.h>
-#  include <GL/freeglut.h>
-#endif
-
-
+#include <GL/freeglut.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 //initialize OpenGl
 void init_OpenGl()
@@ -80,7 +69,6 @@ void DrawCircle(float cx, float cy, float r, int num_segments,int filled)
     if (filled==1)
         {
         glBegin(GL_TRIANGLE_FAN);
-    
         for(int ii = 0; ii < num_segments; ii++)
             {
             //output vertex
@@ -115,13 +103,11 @@ void DrawCircle(float cx, float cy, float r, int num_segments,int filled)
 //draws the particles from a frame
 void draw_all_particles(int frame)
 {
-    int i,j;
+    int i;
     float x,y;
-    float r;
     int color;
 
     float x0,y0,x1,y1;
-    float dx,dy;
 
     //transform simulation box size
     //to Opengl display coordinates
@@ -143,28 +129,6 @@ void draw_all_particles(int frame)
         glVertex3f(x1,y0,-10);
     glEnd();
 
-//draw a line to indicate non-square box
-//SY is smaller I suppose
-/*
-glEnable(GL_LINE_STIPPLE);
-glLineStipple(4, 0xAAAA);
-glBegin(GL_LINES);
-    x0 = 0.0;
-    y0 = 62.35;
-    transform_to_opengl(&x0,&y0);
-    glVertex3f(x0,y0,-10);
-    //printf("%f %f\n",x0,y0);
-    x0 = SX;
-    y0 = 62.35;
-    transform_to_opengl(&x0,&y0);
-    glVertex3f(x0,y0,-10);
-    //printf("%f %f\n",x0,y0);
-glEnd();
-glDisable(GL_LINE_STIPPLE);
-glFlush();
-*/
-
-
     //draw all the particles
 
     for(i=0;i<global.N_objects;i++)
@@ -176,30 +140,14 @@ glFlush();
             {
             color  = global.objects[frame][i].color;
             //default: black
-            // if (color==2) glColor3f(1.0, 0.0, 0.0);
-            //     else if (color==3) glColor3f(0.0, 0.0, 1.0);
-            //         else glColor3f(0.7, 0.7, 0.7);
             
-            switch (color)
-                {
-                case 0: {glColor3f(0.0, 1.0, 0.0);break;} 
-                case 1: {glColor3f(1.0, 0.0, 0.0);break;} 
-                case 2: {glColor3f(0.0, 0.0, 0.0);break;} //particles
-                case 3: {glColor3f(0.0, 0.0, 1.0); break;}
-                case 4: {glColor3f(0.25, 0.25, 0.588);break;} //0-in
-                case 5: {glColor3f(0.322, 0.616, 0.718);break;} //1in
-                case 6: {glColor3f(0.49, 0.722, 0.455);break;}   //2in
-                case 7: {glColor3f(0.89, 0.612, 0.216);break;}   //3in
-                case 8: {glColor3f(0.85, 0.129, 0.125);break;}   //4in
-                case 9: {glColor3f(1.0, 0.129, 0.125);break;}   //4in
-                case 10: {glColor3f(0.85, 1.0, 0.125);break;}   //4in
-                case 11: {glColor3f(0.85, 0.129, 1.0);break;}   //4in
-                
             
-                default: {glColor3f(1.0, 1.0, 1.0);break;} //should be only gs
-                }
+            if (color==2) glColor3f(1.0, 0.0, 0.0);
+                else if (color==3) glColor3f(0.0, 0.0, 1.0);
+                else if (color==4) glColor3f(0.0, 1.0, 1.0);
+                else if (color==5) glColor3f(1.0, 0.0, 1.0);
+                    else glColor3f(0.7, 0.7, 0.7);
             
-        
             //remap to OpenGl coord
         
             //main window is an 1280x800
@@ -208,70 +156,9 @@ glFlush();
         
             transform_to_opengl(&x,&y);
         
-            if (color==2) DrawCircle(x, y, global.radius_vertex + 0.01, 36,1);  
-            else DrawCircle(x, y, global.radius_vertex + 0.01, 36,1);
-        
-            /*
-            if ((color==2)||(color==3))
-                {
-                r = objects[frame][i].R;
-                transform_distance_to_opengl(&r);
-                DrawCircle(x, y, r, 36,0);
-                }*/
-            //else DrawCircle(x, y, 0.02, 36,1);
+            DrawCircle(x, y, global.radius_particle, 36,1);
             }
         }
-    
-    
-    //draw the trace
-    
-   if (frame>100)
-   for(i=0;i<global.N_objects;i++)
-    {
-    color  = global.objects[frame][i].color;
-        //default: black
-        glColor3f(0.0, 0.0, 0.0);
-        switch (color)
-            {
-            case 2: {glColor3f(1.0, 0.0, 0.0);break;}
-            case 3: {glColor3f(0.0, 0.0, 1.0);break;}
-            case 4: {glColor3f(0.0, 0.5, 0.0);break;}
-            //else: {glColor3f(0.0, 0.0, 0.0);break;}
-            }
-    
-    //only for particles draw traces
-    
-    if (global.trajectories_on)
-        if (global.objects[frame][i].color>1)
-            {
-            glLineWidth(3.0);
-            glBegin(GL_LINES);
-            for(j=10;j<100;j=j+10)
-                {
-                //how long will the line segment be
-                dx = fabs(global.objects[frame-j+10][i].x - global.objects[frame-j][i].x);
-                dy = fabs(global.objects[frame-j+10][i].y - global.objects[frame-j][i].y);
-                
-                //does it skip over boundaries
-                //if it does stop drawing the trace from this point on
-                if ((dx>(global.SX/2.0))||(dy>(global.SY/2.0))) break;
-                    
-                x0 = global.objects[frame-j][i].x;
-                y0 = global.objects[frame-j][i].y;
-                transform_to_opengl(&x0,&y0);
-                glVertex3f(x0,y0,-10);
-                
-                x0 = global.objects[frame-j+10][i].x;
-                y0 = global.objects[frame-j+10][i].y;
-                transform_to_opengl(&x0,&y0);
-                glVertex3f(x0,y0,-10);
-                //printf("%f %f\n",x0,y0);
-                
-                }
-            glEnd();
-            }
-    
-    }
 }
 
 int inside_zoomed_box(float x, float y)
@@ -282,8 +169,6 @@ if ((x>=global.zoom_x0)&&(x<=global.zoom_x1)&&(y>=global.zoom_y0)&&(y<=global.zo
 else return 0;
 
 }
-
-
 
 //transforms from simulation units to Opengl units
 void transform_to_opengl(float *x,float *y)
@@ -310,17 +195,16 @@ void display_function()
     draw_all_particles(global.current_frame);
     glutSwapBuffers();
     
-    //global.current_frame = 20;
-   
-    if (global.current_frame<global.N_frames-10)
+    //step through the frames
+    if (global.current_frame<global.N_frames-1)
         {
-        global.current_frame +=10;
+        global.current_frame += 1;
         printf("%d/%d\n",global.current_frame,global.N_frames);
         fflush(stdout);
         }
    else global.current_frame = 0;
 
-   usleep(400000);
+   usleep(30000);
 }
 
 void reshape_function(int w, int h)

@@ -1,10 +1,7 @@
-//
 //  globaldata.c
 //  softplot
-//
-//  Created by András Libál on 8/7/18.
-//  Copyright © 2018 András Libál. All rights reserved.
-//
+//  Simulation Methods course, 2018
+//  First Assignment: Molecular Dynamics (Brownian Dynamics) Simulation
 
 #include "globaldata.h"
 #include <stdlib.h>
@@ -31,19 +28,15 @@ void initialize_global_data()
     global.zoom_deltay = global.zoom_y1 - global.zoom_y0;
     
     global.radius_vertex = 0.01;
-    global.radius_particle = 0.005;
+    global.radius_particle = 0.02;
     
-    strcpy(global.moviefilename,"../softsim/test/test_cell.mvi");
+    strcpy(global.moviefilename,"../softsim/particles.mvi");
     
     global.N_frames = 0;
     global.current_frame = 0;
-    
-    global.trajectories_on = 0;
-    global.trace_length = 1;
 }
 
 //try to open the movie file, exit if not found with an error message
-
 void open_movie_file()
 {
 
@@ -85,7 +78,6 @@ if (!feof(global.moviefile))
         fread(&floatholder,sizeof(float),1,global.moviefile);
         }
     }
-
 }
 
 void read_cmovie_frame()
@@ -112,6 +104,7 @@ if (!feof(global.moviefile))
         //read in the x coordinate
         fread(&floatholder,sizeof(float),1, global.moviefile);
         global.objects[global.N_frames][i].x = floatholder;
+        //if (i==300) printf("%f\n",global.objects[global.N_frames][i].x);
         //read in the y coordinate
         fread(&floatholder,sizeof(float),1, global.moviefile);
         global.objects[global.N_frames][i].y = floatholder;
@@ -165,44 +158,3 @@ while (!feof(global.moviefile))
     }
 
 }
-
-
-void write_frame_data_to_file()
-{
-FILE *outfile[6];
-int i;
-int file_i;
-int color;
-int frame;
-
-frame = 35;
-
-
-outfile[0] = fopen("hex80k_f35_verttype0.txt","wt");
-outfile[1] = fopen("hex80k_f35_verttype1.txt","wt");
-outfile[2] = fopen("hex80k_f35_verttype2.txt","wt");
-outfile[3] = fopen("hex80k_f35_verttype3.txt","wt");
-outfile[4] = fopen("hex80k_f35_verttype4.txt","wt");
-outfile[5] = fopen("hex80k_f35_verttypegs.txt","wt");
-
-for(i=0;i<global.N_objects;i++)
-    {
-    color = global.objects[frame][i].color;
-    
-    if (color==10) color = 9;
-    if ((color>=4)&&(color<=9))
-        {
-        file_i = color - 4;
-        fprintf(outfile[file_i],"%f %f\n",global.objects[frame][i].x,global.objects[frame][i].y);
-        }
-    }
-
-for(i=0;i<=5;i++)
-    fclose(outfile[i]);
-
-}
-
-
-
-
-
