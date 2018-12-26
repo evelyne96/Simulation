@@ -13,6 +13,8 @@ class Map_Type(IntEnum):
     WAVE = 2
 
 class Configuration():
+    N                   = 30
+    M                   = 30
     PRAY_DEATH_RATE     = 0.2
     PREDATOR_DEATH_RATE = 0.1
     PREDATOR_BIRTH_RATE = 0.8
@@ -24,8 +26,8 @@ class Configuration():
 class Map():
 
     def __init__(self, N=30, M=30, type=Map_Type.RANDOM):
-        self.N = N
-        self.M = M
+        Configuration.N = N
+        Configuration.M = M
         self.map = np.zeros((N,M)).astype(int)
         self.initialize_map(type)
 
@@ -43,11 +45,11 @@ class Map():
     
     def init_creature_randomly(self, number, creatureType):
         for i in range(0, number):
-            posX = random.randint(0, self.N-1)
-            posY = random.randint(0, self.M-1)
+            posX = random.randint(0, Configuration.N-1)
+            posY = random.randint(0, Configuration.M-1)
             while (self.map[posX][posY] != CreatureType.NOTHING):
-                posX = random.randint(0, self.N-1)
-                posY = random.randint(0, self.M-1)
+                posX = random.randint(0, Configuration.N-1)
+                posY = random.randint(0, Configuration.M-1)
             self.map[posX][posY] = creatureType
 
     def init_blob(self):
@@ -58,7 +60,7 @@ class Map():
             self.map[i][14] = CreatureType.PREDATOR
 
     def init_wave(self):
-        for i in range(0,self.N):
+        for i in range(0,Configuration.N):
             self.map[i][13] = CreatureType.PREY
             self.map[i][14] = CreatureType.PREY
             self.map[i][15] = CreatureType.PREDATOR
