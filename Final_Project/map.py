@@ -51,10 +51,17 @@ class Map():
             self.map[posX][posY] = creatureType
 
     def init_blob(self):
-        pass
+        self.map[10][10:15] = CreatureType.PREY
+        for i in range(11,15):
+            self.map[i][10:14] = CreatureType.PREY
+        for i in range(11,15):
+            self.map[i][14] = CreatureType.PREDATOR
 
     def init_wave(self):
-        pass
+        for i in range(0,self.N):
+            self.map[i][13] = CreatureType.PREY
+            self.map[i][14] = CreatureType.PREY
+            self.map[i][15] = CreatureType.PREDATOR
 
     def show_map(self):
         print(self.map)
