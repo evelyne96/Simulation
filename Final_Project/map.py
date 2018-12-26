@@ -1,6 +1,11 @@
 from enum import Enum
 import numpy as np
 
+class CreatureType(Enum):
+    PREDATOR = 0
+    PREY = 1
+    NOTHING = 2
+
 class Map_Type(Enum):
     RANDOM = 0
     BLOB = 1
