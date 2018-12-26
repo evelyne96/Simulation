@@ -121,8 +121,8 @@ global.pinningsite_dx_so_far = (double *)malloc(global.N_pinningsites*sizeof(dou
 global.pinningsite_dy_so_far = (double *)malloc(global.N_pinningsites*sizeof(double));
 global.pinningsite_R = (double *)malloc(global.N_pinningsites*sizeof(double));
 
-//init_pinningsites_square_lattice();
-init_pinningsites_triangular_lattice();
+init_pinningsites_square_lattice();
+// init_pinningsites_triangular_lattice();
 global.pinning_direction_change = 1;
 }
 
@@ -231,7 +231,7 @@ printf("Triangular lattice\nRows = %d\nColumns = %d\nLattice constant = %.2lf\n"
 
 void init_particles()
 {
-global.N_particles = 1000;
+global.N_particles = 400;
 
 
 global.particle_x = (double *)malloc(global.N_particles*sizeof(double));
@@ -244,8 +244,8 @@ global.particle_direction_y = (double *)malloc(global.N_particles*sizeof(double)
 global.particle_dx_so_far = (double *)malloc(global.N_particles*sizeof(double));
 global.particle_dy_so_far = (double *)malloc(global.N_particles*sizeof(double));
 
-//init_particles_square_lattice();
-//init_particles_triangular_lattice();
+// init_particles_square_lattice();
+// init_particles_triangular_lattice();
 init_particles_randomly();
 
 printf("Particles initialized\n");

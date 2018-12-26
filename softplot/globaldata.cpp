@@ -33,12 +33,12 @@ void initialize_global_data()
     global.radius_vertex = 0.01;
     global.radius_particle = 0.005;
     
-    strcpy(global.moviefilename,"../softsim/test/test_cell.mvi");
+    strcpy(global.moviefilename,"../Project2/softsim/particles.mvi");
     
     global.N_frames = 0;
     global.current_frame = 0;
     
-    global.trajectories_on = 0;
+    global.trajectories_on = 1;
     global.trace_length = 1;
 }
 

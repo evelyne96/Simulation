@@ -30,12 +30,10 @@ void initialize_global_data()
     global.radius_vertex = 0.01;
     global.radius_particle = 0.02;
     
-    strcpy(global.moviefilename,"../softsim/particles.mvi");
+    strcpy(global.moviefilename,"../../perk.mvi");
     
     global.N_frames = 0;
     global.current_frame = 0;
-
-    global.trajectories_on = 1;
 }
 
 //try to open the movie file, exit if not found with an error message

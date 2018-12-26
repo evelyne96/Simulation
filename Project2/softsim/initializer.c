@@ -249,7 +249,8 @@ printf("Square lattice\nRows = %d\nColumns = %d\nLattice constant = %.2lf\n",N_r
 
 void init_pinningsites()
 {
-global.N_pinningsites = 576;
+// global.N_pinningsites = 576;
+global.N_pinningsites = 200;
 global.pinningsite_x = (double *)malloc(global.N_pinningsites*sizeof(double));
 global.pinningsite_y = (double *)malloc(global.N_pinningsites*sizeof(double));
 global.pinningsite_fx = (double *)malloc(global.N_pinningsites*sizeof(double));

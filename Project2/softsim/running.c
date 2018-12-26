@@ -104,10 +104,11 @@ for(global.time=0;global.time<global.total_time;global.time++)
 }
 void run_verlet_simulation()
 {
-global.total_time = 1000000;
+global.total_time = 100000;
 global.echo_time = 1000;
 global.movie_time = 1000;
-global.N_particles = 500;
+// global.N_particles = 500;
+global.N_particles = 2000;
 global.SX = 60;
 global.SY = 60;
 global.halfSX = 30;
@@ -142,8 +143,8 @@ for(global.time=0;global.time<global.total_time;global.time++)
     if (global.time % global.movie_time == 0) {
         write_cmovie_frame();
         write_statistics();
+        global.particle_driving_force += 0.1;
     }
-    global.particle_driving_force += 0.005;
     }
 }
 
@@ -187,8 +188,8 @@ void update_particle_force_with_pinning(int i, int psi)
     r = sqrt(r2);
     if(r < global.pinningsite_R[psi]) {
                 f = global.pinningsite_fmax[psi] * (r / global.pinningsite_R[psi]);
-                global.particle_fx[i] += f * (dx / global.pinningsite_R[psi]);
-                global.particle_fy[i] += f * (dy / global.pinningsite_R[psi]);
+                global.particle_fx[i] += f * (dx / r);
+                global.particle_fy[i] += f * (dy / r);
     }
 }
 

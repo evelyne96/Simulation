@@ -67,7 +67,7 @@ void spin_initialization()
             //uniform initialization
             //all soins pointing in one direction
             //(good for low temperatures)
-            //spin[i][j] = +1;
+            spin[i][j] = +1;
             }
     printf("Initialization complete\n");
     printf("pos = %d neg = %d\n",pos,neg);
@@ -125,7 +125,7 @@ int delta_E(int fi,int fj)
 }
 
 //flips spin (on the position: to_be_flipped_i,to_be_flipped_j)
-void flip_spin(to_be_flipped_i,to_be_flipped_j)
+void flip_spin(int to_be_flipped_i,int to_be_flipped_j)
 {
     spin[to_be_flipped_i][to_be_flipped_j] = - spin[to_be_flipped_i][to_be_flipped_j];
 }
@@ -152,11 +152,11 @@ void calculate_statistics()
     
     //we have done a number of steps
     //echo to the user and to the file
-    if (step%1000==0)
-        {
-            printf("t= %d M = %lf\n",t,M/N_spin);
-            fprintf(outfile,"%d %lf\n",t,M/(double)N_spin);
-        }
+    // if (step%1000==0)
+    //     {
+            // printf("t= %d M = %lf\n",t,M/N_spin);
+            // fprintf(outfile,"%d, %lf\n",T,M/(double)N_spin);
+        // }
     
     
     //M_avg = M_avg * ((double)(step)/(double)(step+1.0)) + M/ (double)(step+1.0);
@@ -205,10 +205,11 @@ void run_for_fixed_T()
                     }
             
             //take the SAME OLD state again if there was no spin flip
-            calculate_statistics();
-            if (t%10000==0) write_cmovie();
+            if(t>=10000) {
+                calculate_statistics();
+                if (t%1000==0) write_cmovie();
+            }
             t++;
-            
         }
     
 }
@@ -216,9 +217,12 @@ void run_for_fixed_T()
 void write_out_result()
 {
     M_avg = M_avg / N_spin;
-    
+    M2_avg = M2_avg / N_spin;
+    E_avg = E_avg / N_spin;
+    E2_avg = E2_avg / N_spin;
     printf("T = %lf M = %lf Rej = %ld\n",T,M_avg,N_rej);
-
+    //M, M2, E, E2
+    fprintf(outfile,"%lf, %lf, %lf, %lf, %lf\n",T,M_avg, M2_avg, E_avg, E2_avg);
 }
 
 
@@ -254,33 +258,43 @@ void write_cmovie()
 int main(int argc, const char * argv[])
 {
     printf("Ising model simulation\n");
-    
-    outfile = fopen("ising_data_T21.dat","wt");
-    moviefile = fopen("ising_movie_T21.dat","wb");
-    
+
     srand((int)time(NULL));
-    
+
+    N_steps_per_T = 1010000;
     L_spin = 50;
-    N_spin = L_spin * L_spin;
-    
-    N_steps_per_T = 1000000;
 
-    t = 0;
-    T = 1.5; // y fixed temperature
+    for(L_spin = 30; L_spin<=100; L_spin = L_spin + 20)
+    {
+        // moviefile = fopen("ising_movie_T05_L50.dat","wb");
+        N_spin = L_spin * L_spin;
 
-    //I just stay at a fixed temperature
-    //while(T<=1.0)
-    //{
+        //moviefiles
+        char buffer_movie[1024];
+        snprintf(buffer_movie, sizeof(buffer_movie), "movie_T%drandom.csv", L_spin);//"ising_data_T%drandom.csv", L_spin);
+        moviefile = fopen(buffer_movie,"wt");
+        
+        t = 0;
+        T = 0.5; // y fixed temperature
+
+        //I just stay at a fixed temperature
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer), "data_T%drandom.csv", L_spin);//"ising_data_T%drandom.csv", L_spin);
+        printf("%s %d", buffer, L_spin);
+        outfile = fopen(buffer,"wt");
         spin_initialization();
-        statistics_initialization();
-        run_for_fixed_T();
-        write_out_result();
+        while(T<=4.0)
+        {
+            statistics_initialization();
+            run_for_fixed_T();
+            write_out_result();
     
+            T = T + 0.1;
+        }
     
-        //T = T + 0.1;
-    //}
-    
-    fclose(outfile);
-    fclose(moviefile);
+        fclose(outfile);
+        fclose(moviefile);
+    }
+
     return 0;
 }

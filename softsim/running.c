@@ -18,21 +18,14 @@
 void run_simulation()
 {
 
-// global.total_time = 1000000;
-// global.echo_time = 10000;
-global.movie_time = 1000;
+global.total_time = 100000;
+global.echo_time = 1000;
+global.movie_time = 100;
 
 rebuild_Verlet_list();//build for the first time
-//rebuild_pinning_grid(); //build for the first time
 
 for(global.time=0;global.time<global.total_time;global.time++)
     {
-    //adjust_pinningsite_directions();
-    //rotate_pinningsite_directions();
-    //calculate_external_forces_on_pinningsites();
-    //move_pinningsites();
-    //rebuild_pinning_grid();
-    
     calculate_external_forces_on_particles();
     calculate_pairwise_forces();
     move_particles();
@@ -42,29 +35,23 @@ for(global.time=0;global.time<global.total_time;global.time++)
     //one particle moved enough to rebuild the Verlet list
     if (global.flag_to_rebuild_Verlet==1)
         rebuild_Verlet_list();
-    
-    // In order to test it don't write to file so it doesn't interfere with the solution
-    // //echo time
-    // if (global.time % global.echo_time == 0)
-    //     {
-    //     printf("%d / %d\n",global.time,global.total_time);
-    //     fflush(stdout);
-    //     }
-    
     // //movie write time
-    if (global.time % global.movie_time == 0)
-        write_cmovie_frame();
+    // if (global.time % global.movie_time == 0) {
+    //     test_program_by_coloring();
+    //     write_cmovie_frame();
+    // }
     }
 }
 
 void run_simulation_Verlet_lookup_cell()
 {
-    // global.total_time = 1000000;
-// global.echo_time = 10000;
-global.movie_time = 1000;
+global.total_time = 100000;
+global.echo_time = 1000;
+global.movie_time = 100;
 
 rebuild_Verlet_cell();//build for the first time
-rebuild_Verlet_list_with_cell();
+// rebuild_Verlet_list_with_cell();
+rebuild_Verlet_list();
 
 for(global.time=0;global.time<global.total_time;global.time++)
     {
@@ -77,23 +64,24 @@ for(global.time=0;global.time<global.total_time;global.time++)
     //one particle moved enough to rebuild the Verlet list
     if (global.flag_to_rebuild_Verlet==1)
     {
-        rebuild_Verlet_cell();
-        rebuild_Verlet_list_with_cell();
+        // rebuild_Verlet_cell();
+        // rebuild_Verlet_list_with_cell();
+        rebuild_Verlet_list();
     }
 
-    //movie write time
-    if (global.time % global.movie_time == 0)
-        write_cmovie_frame();
-        
+    // //movie write time
+    // if (global.time % global.movie_time == 0)
+    //     write_cmovie_frame();
+    // }
     }
 }
 
 void run_simulation_simple()
 {
 
-// global.total_time = 1000000;
-// global.echo_time = 10000;
-// global.movie_time = 1000;
+global.total_time = 100000;
+global.echo_time = 1000;
+global.movie_time = 100;
 
 for(global.time=0;global.time<global.total_time;global.time++)
     {
@@ -261,7 +249,7 @@ for(ii=0;ii<global.N_Verlet;ii++)
     r = sqrt(r2);
     if (r<0.2)
         {
-        printf("WARNING:PARTICLES TOO CLOSE. LOWER FORCE USED %d - %d \n", i, j);
+        // printf("WARNING:PARTICLES TOO CLOSE. LOWER FORCE USED %d - %d \n", i, j);
         f = 100.0;
         }
     else
@@ -423,9 +411,6 @@ void update_verlet_list_from_cell(int one, int two, int same)
             global.Verletlisti[global.N_Verlet] = i;
             global.Verletlistj[global.N_Verlet] = j;
             
-            //if (global.time==0)
-            //if ((i==150)||(j==150)) printf("(%d %d)\n",i,j);
-            
             global.N_Verlet++;
             if (global.N_Verlet>=global.N_Verlet_max)
                 {
@@ -512,18 +497,9 @@ double estimation;
 if (global.N_Verlet_max==0)
     {
     //we are building the Verlet list for the first time in the simulation
-    printf("Verlet list will be built for the first time\n");
-     
     estimation = global.N_particles/(double)global.SX/(double)global.SY;
-    printf("System density is %.3lf\n",estimation);
-    
     estimation *= PI * global.Verlet_cutoff_distance * global.Verlet_cutoff_distance;
-    printf("Particles in a R = %.2lf shell = %lf\n",
-        global.Verlet_cutoff_distance,estimation);
-    
     global.N_Verlet_max = (int)estimation * global.N_particles / 2;
-    printf("Estimated N_Verlet_max = %d\n",global.N_Verlet_max);
-    
     global.Verletlisti = (int *) malloc(global.N_Verlet_max * sizeof(int));
     global.Verletlistj = (int *) malloc(global.N_Verlet_max * sizeof(int));
     }
@@ -538,32 +514,21 @@ for(i=0;i<global.N_particles;i++)
         distance_squared_folded_PBC(global.particle_x[i],global.particle_y[i],
             global.particle_x[j],global.particle_y[j],&dr2,&dx,&dy);
             
-        //if (global.time==0)
-        //    if ((i==150)||(j==150)) printf("(%d %d %lf)\n",i,j,dr2);
-            
         if (dr2<36.0)
             {
             global.Verletlisti[global.N_Verlet] = i;
             global.Verletlistj[global.N_Verlet] = j;
             
-            //if (global.time==0)
-            //if ((i==150)||(j==150)) printf("(%d %d)\n",i,j);
-            
             global.N_Verlet++;
             if (global.N_Verlet>=global.N_Verlet_max)
                 {
-                printf("Verlet list reallocated from %d\n",global.N_Verlet_max);
                 global.N_Verlet_max = (int)(1.1*global.N_Verlet);
                 global.Verletlisti = (int *) realloc(global.Verletlisti ,global.N_Verlet_max * sizeof(int));
                 global.Verletlistj = (int *) realloc(global.Verletlistj ,global.N_Verlet_max * sizeof(int));
-                printf("New Verlet list max size = %d\n",global.N_Verlet_max);
                 }
             }
         }
     }
-
-// printf("Counted Verlet list lenght = %d\n",global.N_Verlet);
-fflush(stdout);
 
 global.flag_to_rebuild_Verlet = 0;
 for(i=0;i<global.N_particles;i++)
@@ -583,13 +548,13 @@ double estimation;
 if (global.N_Verlet_max==0)
     {
     estimation = global.N_particles/(double)global.SX/(double)global.SY;
-    printf("System density is %.3lf\n",estimation);
+    // printf("System density is %.3lf\n",estimation);
     
     estimation *= PI * global.Verlet_cutoff_distance * global.Verlet_cutoff_distance;
-    printf("Particles in a R = %.2lf shell = %lf\n", global.Verlet_cutoff_distance,estimation);
+    // printf("Particles in a R = %.2lf shell = %lf\n", global.Verlet_cutoff_distance,estimation);
     
     global.N_Verlet_max = (int)estimation * global.N_particles / 2;
-    printf("Estimated N_Verlet_max = %d\n",global.N_Verlet_max);
+    // printf("Estimated N_Verlet_max = %d\n",global.N_Verlet_max);
     
     global.Verletlisti = (int *) malloc(global.N_Verlet_max * sizeof(int));
     global.Verletlistj = (int *) malloc(global.N_Verlet_max * sizeof(int));
@@ -621,9 +586,6 @@ for(i=0;i<global.Verlet_cell_list_size;i++)
     update_verlet_list_from_cell(i, down_right, 0);
 
 }
-
-// printf("Counted Verlet list lenght = %d\n",global.N_Verlet);
-fflush(stdout);
 
 global.flag_to_rebuild_Verlet = 0;
 for(i=0;i<global.N_particles;i++)
@@ -700,12 +662,6 @@ if (dy <= -global.halfSY) dy += global.SY;
 
 dr2 = dx*dx + dy*dy;
 
-//if ((global.time==0)&&(sqrt(dr2)<6.0))
-//    {
-//    printf("%lf %lf %lf %lf -> %lf %lf = %lf\n",x0,y0,x1,y1,dx,dy, sqrt(dr2));
-//    }
-
-
 *r2_return = dr2;
 *dx_return = dx;
 *dy_return = dy;
@@ -731,9 +687,9 @@ for(i=0;i<global.N_particles;i++)
     
     fold_particle_back_PBC(i);
 
-     int gridx = ((int)floor(global.particle_x[i]) / global.Nx_Verlet_cell_list);
-     int gridy = ((int)floor(global.particle_y[i]) / global.Ny_Verlet_cell_list);
-     int pos = (gridx * global.Ny_Verlet_cell_list) + gridy;
+    //  int gridx = ((int)floor(global.particle_x[i]) / global.Nx_Verlet_cell_list);
+    //  int gridy = ((int)floor(global.particle_y[i]) / global.Ny_Verlet_cell_list);
+    //  int pos = (gridx * global.Ny_Verlet_cell_list) + gridy;
     //  global.particle_color[i] = (gridy+gridx) %4;
     
     global.particle_fx[i] = 0.0;
@@ -826,16 +782,16 @@ for(ii=0;ii<global.N_Verlet;ii++)
 */
 
 //testing the pinning grid by coloring the pins
-// for(i=0;i<global.Nx_pinningsite_grid;i++)
-//     for(j=0;j<global.Ny_pinningsite_grid;j++)
-//         {
-//         if (global.pinningsite_grid[i][j]!=-1)
-//             {
-//             global.pinningsite_color[global.pinningsite_grid[i][j]] = i%2 + 2;
-//             //printf("%d %d (%d)-> %d\n",i,j,global.pinningsite_grid[i][j], i%2 + 2);
-//             //printf("%d\n",global.pinningsite_color[global.pinningsite_grid[i][j]]);
-//             }
-//         }
+for(i=0;i<global.Nx_pinningsite_grid;i++)
+    for(j=0;j<global.Ny_pinningsite_grid;j++)
+        {
+        if (global.pinningsite_grid[i][j]!=-1)
+            {
+            global.pinningsite_color[global.pinningsite_grid[i][j]] = i%2 + 2;
+            //printf("%d %d (%d)-> %d\n",i,j,global.pinningsite_grid[i][j], i%2 + 2);
+            //printf("%d\n",global.pinningsite_color[global.pinningsite_grid[i][j]]);
+            }
+        }
 
 }
 
@@ -859,8 +815,8 @@ void rebuild_Verlet_cell()
 
     for(int i=0;i<global.N_particles;i++)
     {
-        int gridx = ((int)floor(global.particle_x[i]) / global.Nx_Verlet_cell_list);
-        int gridy = ((int)floor(global.particle_y[i]) / global.Ny_Verlet_cell_list);
+        int gridx = (int) floor(global.particle_x[i] / global.Nx_Verlet_cell_list);
+        int gridy = (int) floor(global.particle_y[i] / global.Ny_Verlet_cell_list);
         int pos = (gridx * global.Ny_Verlet_cell_list) + gridy;
         add(i, global.Verlet_cell_list[pos]);
     }
@@ -869,21 +825,25 @@ void rebuild_Verlet_cell()
 //TESTS FOR COMPARISION
 void run_test_verlet_vs_time()
 {
-    FILE *testf;
-    testf = fopen("test/verletcell_vs_time.csv","wt");
-    global.total_time = 500;
+    FILE *testf = fopen("test/verlet_vs_time.csv","wt");
 
-    for(int i=0;i<20;i++)
+    global.SX = 42.42;
+    global.SY = global.SX;
+    for(global.N_particles=200;global.N_particles<400;global.N_particles+=100)
     {
-        printf("%d\n",i);
+        global.halfSX = global.SX / 2.0;
+        global.halfSY = global.SY / 2.0;
+        printf("%d\n",global.N_particles);
         clock_t before = clock();
+        // run_simulation_simple();
         run_simulation_Verlet_lookup_cell();
         // run_simulation();
-        clock_t difference = clock() - before;
-        int msec = difference * 1000 / CLOCKS_PER_SEC;
-        fprintf(testf,"%d,%d\n",global.total_time,msec);
-        global.total_time += 5000;
+        clock_t after = clock();
+        double time_spent = (double)(after - before) / CLOCKS_PER_SEC;
+        fprintf(testf,"%d,%f\n",global.N_particles,time_spent);
+        printf("After simulation\n");
+        global.SX = round( sqrt(((global.N_particles+100)*global.SX*global.SY)/global.N_particles));
+        global.SY = global.SX;
     }
-    
     fclose(testf);
 }

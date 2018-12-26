@@ -16,8 +16,8 @@ void initialize_global_data()
     global.Windowsize_x = 1280;
     global.Windowsize_y = 800;
 
-    global.SX = 60.0;
-    global.SY = 60.0;
+    global.SX = 50.0;
+    global.SY = 50.0;
     
     global.zoom_x0 = 0.0;
     global.zoom_x1 = global.SX;
@@ -30,12 +30,10 @@ void initialize_global_data()
     global.radius_vertex = 0.01;
     global.radius_particle = 0.02;
     
-    strcpy(global.moviefilename,"../softsim/particles.mvi");
+    strcpy(global.moviefilename,"../ising_model/ising_movie_T12_L50.dat");
     
     global.N_frames = 0;
     global.current_frame = 0;
-
-    global.trajectories_on = 1;
 }
 
 //try to open the movie file, exit if not found with an error message

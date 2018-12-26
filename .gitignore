@@ -3,3 +3,6 @@
 *.csv
 *.mvi
 *.ods
+*.dat
+*.png
+*.DS_Store

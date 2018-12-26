@@ -88,8 +88,6 @@ struct flag_struct
     {
     short int system_size_SX_set;
     short int system_size_SY_set;
-
-    
     };
 
 
