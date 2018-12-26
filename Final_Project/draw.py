@@ -9,10 +9,10 @@ import matplotlib.animation as animation
 from map import Configuration, CreatureType, Map
 
 class SimulationBox:
-    def __init__(self, bounds = [-1, Configuration.N, -1, Configuration.M], time_steps = 1):
-        self.bounds = bounds
-        self.map = Map()
-        self.state = np.zeros((Configuration.N,Configuration.M)).astype(int)
+    def __init__(self, bounds = [-1, Configuration.N, -1, Configuration.M], time_steps = 1, config=Configuration):
+        self.map = Map(config=config)
+        self.bounds = [-1, config.N, -1, config.M]
+        self.state = np.zeros((config.N,config.M)).astype(int)
         self.time_steps = time_steps
 
     def step(self):
@@ -34,14 +34,14 @@ class SimulationBox:
         return predators, preys
 
 class Simulation:
-    def __init__(self, time_steps=100):
-        self.box = SimulationBox(time_steps=time_steps)
+    def __init__(self, config=Configuration, time_steps=100):
+        self.box = SimulationBox(config=config, time_steps=time_steps)
         #------------------------------------------------------------
         # set up figure and animation
         self.fig = plt.figure()
         self.fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
-        self.ax = self.fig.add_subplot(111, aspect='equal', autoscale_on=True,
-                            xlim=(-1, Configuration.N), ylim=(-1, Configuration.M))
+        self.ax = self.fig.add_subplot(111, aspect='equal', autoscale_on=False,
+                            xlim=(-1, config.N), ylim=(-1, config.M))
 
 
         self.predators, = self.ax.plot([], [], 'bo', ms=10, color='r')
@@ -75,10 +75,11 @@ class Simulation:
 
         return self.predators, self.preys, self.rect
 
-    def start_simulation(self):
+    def start_simulation(self, should_show_animation=False):
         ani = animation.FuncAnimation(self.fig, self.animate, frames=self.box.time_steps,
                               interval=20, blit=True, init_func=self.init_anim)
 
         ani.save('./simulation.mp4', fps=1.0, dpi=200, writer='ffmpeg')
 
-        plt.show()
+        if should_show_animation:
+            plt.show()
