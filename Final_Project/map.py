@@ -70,13 +70,12 @@ class Map():
     def show_map(self):
         print(self.map)
 
-    def simulate(self, upper_bound):
+    def simulate(self, upper_bound=1):
         """ upper_bound = number of episodes """
         for k in range(0, upper_bound):
             self.new_map = self.map.copy()
-            print("Episode: ", k)
-            for i in range(0, self.N):
-                for j in range(0, self.M):
+            for i in range(0, Configuration.N):
+                for j in range(0, Configuration.M):
                     if self.map[i][j] == CreatureType.PREY:
                         self.check_in_all_directions(i, j, CreatureType.PREY)
 
@@ -93,13 +92,13 @@ class Map():
         self.breed_with_probability(i-1, j, creature)
 
         # Down
-        if i+1 == self.N:
+        if i+1 == Configuration.N:
             self.breed_with_probability(0, j, creature)
         else:
             self.breed_with_probability(i+1, j, creature)
 
         # Right
-        if j+1 == self.M:
+        if j+1 == Configuration.M:
             self.breed_with_probability(i, 0, creature)
         else:
             self.breed_with_probability(i, j+1, creature)
@@ -108,7 +107,7 @@ class Map():
         self.breed_with_probability(i, j-1, creature)
 
         # Up - Right
-        if j+1 == self.M:
+        if j+1 == Configuration.M:
             self.breed_with_probability(i-1, 0, creature)
         else:
             self.breed_with_probability(i-1, j+1, creature)
@@ -117,18 +116,18 @@ class Map():
         self.breed_with_probability(i-1, j-1, creature)
 
         # Down - Left
-        if i+1 == self.N:
+        if i+1 == Configuration.N:
             self.breed_with_probability(0, j-1, creature)
         else:
             self.breed_with_probability(i+1, j-1, creature)
 
         # Down - Right
-        if i+1 == self.N:
+        if i+1 == Configuration.N:
             i=0
         else:
             i=i+1
 
-        if j+1 == self.M:
+        if j+1 == Configuration.M:
             self.breed_with_probability(i, 0, creature)
         else:
             self.breed_with_probability(i, j+1, creature)
@@ -144,8 +143,8 @@ class Map():
                 self.new_map[i][j] = CreatureType.PREDATOR
     
     def kill_starving_predators(self):
-        for i in range(0, self.N):
-            for j in range(0, self.M):
+        for i in range(0, Configuration.N):
+            for j in range(0, Configuration.M):
                 if self.new_map[i][j] == CreatureType.PREDATOR:
                     if self.check_if_its_dead(i, j) == True:
                         self.new_map[i][j] = CreatureType.NOTHING
@@ -158,7 +157,7 @@ class Map():
             return False
 
         # Down
-        if i+1 == self.N:
+        if i+1 == Configuration.N:
             if self.new_map[0][j] == CreatureType.PREY:
                 return False
         else:
@@ -166,7 +165,7 @@ class Map():
                 return False
 
         # Right
-        if j+1 == self.M:
+        if j+1 == Configuration.M:
             if self.new_map[i][0] == CreatureType.PREY:
                 return False
         else:
@@ -178,7 +177,7 @@ class Map():
                 return False
 
         # Up - Right
-        if j+1 == self.M:
+        if j+1 == Configuration.M:
             if self.new_map[i-1][0] == CreatureType.PREY:
                 return False
         else:
@@ -190,7 +189,7 @@ class Map():
                 return False
 
         # Down - Left
-        if i+1 == self.N:
+        if i+1 == Configuration.N:
             if self.new_map[0][j-1] == CreatureType.PREY:
                 return False
         else:
@@ -198,12 +197,12 @@ class Map():
                 return False
 
         # Down - Right
-        if i+1 == self.N:
+        if i+1 == Configuration.N:
             i=0
         else:
             i=i+1
 
-        if j+1 == self.M:
+        if j+1 == Configuration.M:
             if self.new_map[i][0] == CreatureType.PREY:
                 return False
         else:
