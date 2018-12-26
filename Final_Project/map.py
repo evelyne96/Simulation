@@ -26,12 +26,13 @@ class Configuration():
 
 class Map():
 
-    def __init__(self, N=30, M=30, type=Map_Type.RANDOM):
+    def __init__(self, N=30, M=30, type=Map_Type.RANDOM, filename="statistics.csv"):
         Configuration.N = N
         Configuration.M = M
         self.map = np.zeros((N,M)).astype(int)
         self.new_map = self.map
         self.initialize_map(type)
+        self.statistics_file = filename
 
     def initialize_map(self,type):
         if type == Map_Type.RANDOM:
@@ -72,15 +73,22 @@ class Map():
 
     def simulate(self, upper_bound=1):
         """ upper_bound = number of episodes """
+        open(self.statistics_file, "w").close()
         for k in range(0, upper_bound):
             self.new_map = self.map.copy()
+            num_prey = 0
+            num_pred = 0
             for i in range(0, Configuration.N):
                 for j in range(0, Configuration.M):
                     if self.map[i][j] == CreatureType.PREY:
+                        num_prey += 1
                         self.check_in_all_directions(i, j, CreatureType.PREY)
 
                     elif self.map[i][j] == CreatureType.PREDATOR:
+                        num_pred += 1
                         self.check_in_all_directions(i, j, CreatureType.PREDATOR)
+            with open(self.statistics_file, 'a') as out:
+                out.write(str(k) + " " + str(num_pred) + " " + str(num_prey) + '\n')
 
             self.kill_starving_predators()
             self.map = self.new_map.copy()
