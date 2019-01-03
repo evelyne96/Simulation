@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 import random 
+from plot_graph import draw_graph
 
 N_max =100
 N = 10
@@ -57,5 +58,16 @@ def distribution_plot():
     plt.plot(dist_prob)
     plt.show()
 
+def graph_edges():
+    edges = []
+    for i in range(N_max):
+        for j in range(i+1,N_max):
+            if graph[i][j] == 1:
+                edges.append((i,j))
+    return edges
+
+# init_graph_random()
 init_graph_scale_free(N)
+G = graph_edges()
+draw_graph(G)
 distribution_plot()
