@@ -18,7 +18,6 @@ class SimulationBox:
     def step(self):
         self.map.simulate()
         self.state = self.map.map
-        # we can get the data for the right timestep here
     
     def position_for_drawing(self):
         predators = [[], []]

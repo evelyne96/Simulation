@@ -79,9 +79,6 @@ void move_randomwalker()
             randomwalker_x = tempx;
             randomwalker_y = tempy;
         }
-    
-    
-    
 }
 
 void does_it_stick()
@@ -188,24 +185,27 @@ int main(int argc, const char * argv[]) {
     sticking_prob = 0.1;
 
     FILE *testf;
-    testf = fopen("test/res.csv","wt");
     
-    // while(sticking_prob<=1.0) {
-    // sticking_prob += 0.1;    
+    while(sticking_prob<=1.0) {
+    sticking_prob += 0.1;    
 
-    init_grid();
-    init_randomwalker();
-    
-    for(t=0;t<10000000;t++)
-        {
-            if (t%100000==0) printf("t = %d\n",t);
-            move_randomwalker();
-            if (the_random_walker_is_lost()) init_randomwalker();
-            does_it_stick();
-            if (t%100==0) fprintf(testf,"%d,%f\n",t,avg_distance());
-        }
-    // write_cmovie();
-    // }
+        init_grid();
+        init_randomwalker();
+        
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer), "test/res%f.csv", sticking_prob);
+        testf = fopen(buffer,"wt");
+        
+        for(t=0;t<10000;t++)
+            {
+                if (t%10==0) printf("t = %d\n",t);
+                move_randomwalker();
+                if (the_random_walker_is_lost()) init_randomwalker();
+                does_it_stick();
+                if (t%100==0) fprintf(testf,"%d,%f\n",t,avg_distance());
+            }
+        // write_cmovie();
+    }
     fclose(moviefile);
     fclose(testf);
     return 0;
