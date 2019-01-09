@@ -78,7 +78,7 @@ class Simulation:
         ani = animation.FuncAnimation(self.fig, self.animate, frames=self.box.time_steps,
                               interval=20, blit=True, init_func=self.init_anim)
 
-        ani.save('./simulation.mp4', fps=1.0, dpi=200, writer='ffmpeg')
+        ani.save('./simulation.mp4', fps=5.0, dpi=200, writer='ffmpeg')
 
         if should_show_animation:
             plt.show()
