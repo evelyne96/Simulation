@@ -66,8 +66,8 @@ def graph_edges():
                 edges.append((i,j))
     return edges
 
-# init_graph_random()
-init_graph_scale_free(N)
+init_graph_random()
+# init_graph_scale_free(N)
 G = graph_edges()
 draw_graph(G)
 distribution_plot()

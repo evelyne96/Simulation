@@ -27,10 +27,10 @@ def start_simulation(show_anim=True):
     simulation = draw.Simulation(config=config)
     simulation.start_simulation(should_show_animation=show_anim)
 
-config = load_conf()
-creature_map = map.Map(config=config,filename="stat.csv")
-creature_map.show_map()
-creature_map.simulate(1000)
-creature_map.show_map()
+# config = load_conf()
+# creature_map = map.Map(config=config,filename="stat.csv")
+# creature_map.show_map()
+# creature_map.simulate(1000)
+# creature_map.show_map()
 
 start_simulation()
